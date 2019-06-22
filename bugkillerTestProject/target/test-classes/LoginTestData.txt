@@ -1,0 +1,9 @@
+admin
+admin
+username
+password
+šašas
+šašaspašas
+a%b@c$
+d#e^f&
+ABCDEFGHIKLMNOPQRSTVXYZABCDEFGHIKLMNOPQRSTVXYZABCD
