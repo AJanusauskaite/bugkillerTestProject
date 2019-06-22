@@ -9,21 +9,22 @@ import Utils.FileReaderUtils;
 import Utils.Waits;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
 
-/**Test search functionality without input
- * 1)click button 'Ieškoti'
+
+/**Test search functionality with existing username
+ * "1) enter Dianna1 to search field
+ * 2) click search button"
  */
-public class SearchWithoutPhrase extends AbstractTest {
+public class SearchWithExistingUsername extends AbstractTest {
     LoginPage loginPage;
     MainPage mainPage;
     NaudotojuAdministravimas naudotojuAdministravimas;
@@ -37,7 +38,7 @@ public class SearchWithoutPhrase extends AbstractTest {
     }
 
     @Test
-    public void testSearchUsersWithoutInput() throws IOException, InterruptedException {
+    public void testSearchWithExistingUsername() throws IOException {
         loginPage=new LoginPage(driver);
         mainPage=new MainPage(driver);
         naudotojuAdministravimas=new NaudotojuAdministravimas(driver);
@@ -46,21 +47,27 @@ public class SearchWithoutPhrase extends AbstractTest {
         waitsFor=new Waits();
 
         List<String> loginData = fileReaderUtils.getTestData("src/test/resources/LoginTestData.txt");
+        List<String> searchUsers = fileReaderUtils.getTestData("src/test/resources/SearchUsers.txt");
 
         loginPage.fillInputFieldUsername(loginData.get(0));
         loginPage.fillInputFieldPassword(loginData.get(1));
         loginPage.clickBtnPrisijungti();
 
         sideNavigation.clickBtnNaudotojai();
+        naudotojuAdministravimas.fillInputSearchField(searchUsers.get(0));
         naudotojuAdministravimas.clickBtnSearch();
-        waitsFor.waitForAlertToBePresent(driver);
 
-        //assert that alert message is shown and close it
-        assertThat(naudotojuAdministravimas.getAlertMsgText(), containsString("Pagal paiešką nerasta "));
-        naudotojuAdministravimas.acceptAlertMsg();
+        waitsFor.waitForElementsToBePresent(driver,"#userListTable > table > tbody>tr");
 
-        //assert that the search result table is empty
-        assertTrue("search results are shown", naudotojuAdministravimas.getListOfSearchResults().size()==1);
+
+        assertTrue("amount of search results incorrect",
+                naudotojuAdministravimas.getListOfSearchResults().size()==1);
+
+        assertTrue("search field is not cleared", naudotojuAdministravimas.getInputSearchField().getText().isEmpty());
+
+        //check that the username in search results is same as search phrase
+        assertTrue(naudotojuAdministravimas.compareFoundUsernameToSearchedEquals(searchUsers.get(0)));
 
     }
+
 }
